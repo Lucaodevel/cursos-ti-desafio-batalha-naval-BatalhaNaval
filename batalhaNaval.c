@@ -22,6 +22,8 @@ int main(){
     //Coordenadas Iniciais
     int linhaH = 2, colunaH = 4; // Horizontal
     int linhaV = 5, colunaV = 1; // Vertical
+    int linhaD1 = 0, colunaD1 = 0; // Diagonal 1 (\)
+    int linhaD2 = 7, colunaD2 = 9; // Diagonal 2 (/)
 
     // Navio Horizontal
     if (colunaH + areaNavio > areaTab) {
@@ -62,6 +64,32 @@ int main(){
         tabuleiro[linhaV + i][colunaV] = navioVertical[i];
     }
 
+    // Posiciona Navio Diagonal 1
+    if (linhaD1 + areaNavio <= areaTab && colunaD1 + areaNavio <= areaTab){
+        int sobreposicao = 0;
+        for (int i = 0; i < areaNavio; i++){
+            if (tabuleiro[linhaD1 + i] [colunaD1 + i] != 0) sobreposicao = 1;
+        }
+        if (!sobreposicao) {
+            for (int i = 0; i < areaNavio; i++){
+                tabuleiro[linhaD1 + i][colunaD1 + i] = 3;
+            }
+        }
+    }
+
+    // Posiciona Navio Diagonal 2
+    if (linhaD2 + areaNavio <= areaTab && colunaD2 - areaNavio >= 0){
+        int sobreposicao = 0;
+        for (int i = 0; i < areaNavio; i++){
+            if(tabuleiro[linhaD2 + i][colunaD2 - i] != 0) sobreposicao = 1;
+        }
+        if (!sobreposicao){
+            for (int i = 0; i < areaNavio; i++){
+                tabuleiro[linhaD2 + i][colunaD2 - i] = 3;
+            }
+        }
+    }
+
     // -------- EXIBIÇÃO --------
     printf("\nTabuleiro Batalha Naval:\n");
 
@@ -85,12 +113,6 @@ int main(){
 
     return 0;
 }
-
-    // Nível Aventureiro - Expansão do Tabuleiro e Posicionamento Diagonal
-    // Sugestão: Expanda o tabuleiro para uma matriz 10x10.
-    // Sugestão: Posicione quatro navios no tabuleiro, incluindo dois na diagonal.
-    // Sugestão: Exiba o tabuleiro completo no console, mostrando 0 para posições vazias e 3 para posições ocupadas.
-
     // Nível Mestre - Habilidades Especiais com Matrizes
     // Sugestão: Crie matrizes para representar habilidades especiais como cone, cruz, e octaedro.
     // Sugestão: Utilize estruturas de repetição aninhadas para preencher as áreas afetadas por essas habilidades no tabuleiro.
