@@ -1,135 +1,137 @@
 #include <stdio.h>
 
-int main(){
+// Definições de constantes para facilitar a manutenção e legibilidade
+#define TAM_TAB 10      // Tamanho do tabuleiro
+#define TAM_HAB 5       // Tamanho das matrizes de habilidade (5x5)
+#define AGUA 0          // Representação da água
+#define NAVIO 3         // Representação do navio
+#define HABILIDADE 5    // Representação da área de efeito
 
-    // Declaração das Variaveis
-    int areaTab = 10;
+int main() {
+    // 1. Declaração de matrizes
+    int tabuleiro[TAM_TAB][TAM_TAB];
+    int cone[TAM_HAB][TAM_HAB];
+    int cruz[TAM_HAB][TAM_HAB];
+    int octaedro[TAM_HAB][TAM_HAB];
+    
+    // Inicializa o tabuleiro com água (0)
+    for (int i = 0; i < TAM_TAB; i++) {
+        for (int j = 0; j < TAM_TAB; j++) {
+            tabuleiro[i][j] = AGUA;
+        }
+    }
+
+    // 2. Posicionamento dos Navios
     int areaNavio = 3;
-
-    // Matriz do Tabuleiro iniciando em '0'
-    int tabuleiro[10][10];
-
-    for (int i = 0; i < areaTab; i++) {
-        for(int j = 0; j < areaTab; j++) {
-            tabuleiro[i][j] = 0;            
-        }
-    }
-
-    // Colocando navios no tabuleiro
-    int navioHorizontal[3] = {3, 3, 3};
-    int navioVertical[3] = {3, 3, 3};
-
-    //Coordenadas Iniciais
-    int linhaH = 2, colunaH = 4; // Horizontal
-    int linhaV = 5, colunaV = 1; // Vertical
-    int linhaD1 = 0, colunaD1 = 0; // Diagonal 1 (\)
-    int linhaD2 = 7, colunaD2 = 9; // Diagonal 2 (/)
-
+    
     // Navio Horizontal
-    if (colunaH + areaNavio > areaTab) {
-        printf("Erro: Navio horizontal fora do tabuleiro!\n");
-        return 1;
-    }
-
-    // Verifica sobreposição
-    for (int i = 0; i < areaNavio; i++) {
-        if (tabuleiro[linhaH][colunaH + i] != 0) {
-            printf("Erro: Sobreposição no navio horizontal!\n");
-            return 1;
-        }
-    }
-
-    // Posição navio horizontal
-
-    for (int i = 0; i < areaNavio; i++) {
-        tabuleiro[linhaH][colunaH + i] = navioHorizontal[i];
-    }
+    int linhaH = 2, colunaH = 4;
+    for (int i = 0; i < areaNavio; i++) tabuleiro[linhaH][colunaH + i] = NAVIO;
 
     // Navio Vertical
-    if (linhaV + areaNavio > areaTab) {
-        printf("Erro: Navio vertical fora do tabuleiro!\n");
-        return 1;
-    }
+    int linhaV = 5, colunaV = 1;
+    for (int i = 0; i < areaNavio; i++) tabuleiro[linhaV + i][colunaV] = NAVIO;
 
-    // Verifica sobreposição
-    for (int i = 0; i < areaNavio; i++) {
-        if (tabuleiro[linhaV + i][colunaV] != 0) {
-            printf("Erro: Sobreposição no navio vertical!\n");
-            return 1;
-        }
-    }
+    // Navio Diagonal 1 (\)
+    int linhaD1 = 0, colunaD1 = 0;
+    for (int i = 0; i < areaNavio; i++) tabuleiro[linhaD1 + i][colunaD1 + i] = NAVIO;
 
-    // Posiciona navio vertical
-    for (int i = 0; i < areaNavio; i++) {
-        tabuleiro[linhaV + i][colunaV] = navioVertical[i];
-    }
+    // Navio Diagonal 2 (/)
+    int linhaD2 = 7, colunaD2 = 9;
+    for (int i = 0; i < areaNavio; i++) tabuleiro[linhaD2 + i][colunaD2 - i] = NAVIO;
 
-    // Posiciona Navio Diagonal 1
-    if (linhaD1 + areaNavio <= areaTab && colunaD1 + areaNavio <= areaTab){
-        int sobreposicao = 0;
-        for (int i = 0; i < areaNavio; i++){
-            if (tabuleiro[linhaD1 + i] [colunaD1 + i] != 0) sobreposicao = 1;
-        }
-        if (!sobreposicao) {
-            for (int i = 0; i < areaNavio; i++){
-                tabuleiro[linhaD1 + i][colunaD1 + i] = 3;
+
+    // 3. Habilidades
+    int centro = TAM_HAB / 2;
+
+    for (int i = 0; i < TAM_HAB; i++) {
+        for (int j = 0; j < TAM_HAB; j++) {
+            
+            // --- Lógica do CONE ---
+            if (i < 3 && j >= (centro - i) && j <= (centro + i)) {
+                cone[i][j] = 1;
+            } else {
+                cone[i][j] = 0;
+            }
+
+            // --- Lógica da CRUZ ---
+            if (i == centro || j == centro) {
+                cruz[i][j] = 1;
+            } else {
+                cruz[i][j] = 0;
+            }
+
+            // --- Lógica do OCTAEDRO (Losango) ---
+            int dist_i = (i > centro) ? (i - centro) : (centro - i);
+            int dist_j = (j > centro) ? (j - centro) : (centro - j);
+            if (dist_i + dist_j <= centro) {
+                octaedro[i][j] = 1;
+            } else {
+                octaedro[i][j] = 0;
             }
         }
     }
 
-    // Posiciona Navio Diagonal 2
-    if (linhaD2 + areaNavio <= areaTab && colunaD2 - areaNavio >= 0){
-        int sobreposicao = 0;
-        for (int i = 0; i < areaNavio; i++){
-            if(tabuleiro[linhaD2 + i][colunaD2 - i] != 0) sobreposicao = 1;
-        }
-        if (!sobreposicao){
-            for (int i = 0; i < areaNavio; i++){
-                tabuleiro[linhaD2 + i][colunaD2 - i] = 3;
+    // 4. Sobreposição de Habilidades.
+    int origemConeL = 2, origemConeC = 7;
+    int origemCruzL = 8, origemCruzC = 4;
+    int origemOctL = 5,  origemOctC = 6;
+
+    // Aplicando habilidades usando loops aninhados
+    for (int i = 0; i < TAM_HAB; i++) {
+        for (int j = 0; j < TAM_HAB; j++) {
+            
+            // Cálculo da posição no tabuleiro
+            int tabLinCone = origemConeL + (i - centro);
+            int tabColCone = origemConeC + (j - centro);
+            
+            int tabLinCruz = origemCruzL + (i - centro);
+            int tabColCruz = origemCruzC + (j - centro);
+            
+            int tabLinOct  = origemOctL + (i - centro);
+            int tabColOct  = origemOctC + (j - centro);
+
+            // Condicionais para garantir que a habilidade esteja dentro do tabuleiro (0-9)
+            // Aplica Cone
+            if (tabLinCone >= 0 && tabLinCone < TAM_TAB && tabColCone >= 0 && tabColCone < TAM_TAB) {
+                if (cone[i][j] == 1) tabuleiro[tabLinCone][tabColCone] = HABILIDADE;
+            }
+            
+            // Aplica Cruz
+            if (tabLinCruz >= 0 && tabLinCruz < TAM_TAB && tabColCruz >= 0 && tabColCruz < TAM_TAB) {
+                if (cruz[i][j] == 1) tabuleiro[tabLinCruz][tabColCruz] = HABILIDADE;
+            }
+            
+            // Aplica Octaedro
+            if (tabLinOct >= 0 && tabLinOct < TAM_TAB && tabColOct >= 0 && tabColOct < TAM_TAB) {
+                if (octaedro[i][j] == 1) tabuleiro[tabLinOct][tabColOct] = HABILIDADE;
             }
         }
     }
 
-    // -------- EXIBIÇÃO --------
-    printf("\nTabuleiro Batalha Naval:\n");
+    // 5. --- Exibição ---
+    printf("\n===============================================\n");
+    printf("     BATALHA NAVAL - NIVEL MESTRE - FINAL\n");
+    printf("===============================================\n\n");
 
-    printf("\n   ");
-
-    // Letras das colunas
-    for (int j = 0; j < areaTab; j++) {
-        printf("%c ", 'A' + j);
-    }
+    // Cabeçalho das colunas (A-J)
+    printf("    ");
+    for (int j = 0; j < TAM_TAB; j++) printf("%c ", 'A' + j);
     printf("\n");
 
-    // Linhas + conteúdo
-    for(int i = 0; i < areaTab; i++) {
-        printf("%2d ", i + 1); // linhas de 1 a 10
-
-        for(int j = 0; j < areaTab; j++) {
-            printf("%d ", tabuleiro[i][j]);
+    // Conteúdo do tabuleiro
+    for (int i = 0; i < TAM_TAB; i++) {
+        printf("%2d  ", i + 1); // Número da linha
+        for (int j = 0; j < TAM_TAB; j++) {
+            // Diferenciação visual para facilitar a leitura
+            if (tabuleiro[i][j] == NAVIO) printf("3 ");
+            else if (tabuleiro[i][j] == HABILIDADE) printf("5 ");
+            else printf("0 ");
         }
         printf("\n");
     }
 
+    printf("\nLegenda: 0=Água | 3=Navio | 5=Habilidade\n");
+
     return 0;
 }
-    // Nível Mestre - Habilidades Especiais com Matrizes
-    // Sugestão: Crie matrizes para representar habilidades especiais como cone, cruz, e octaedro.
-    // Sugestão: Utilize estruturas de repetição aninhadas para preencher as áreas afetadas por essas habilidades no tabuleiro.
-    // Sugestão: Exiba o tabuleiro com as áreas afetadas, utilizando 0 para áreas não afetadas e 1 para áreas atingidas.
-
-    // Exemplos de exibição das habilidades:
-    // Exemplo para habilidade em cone:
-    // 0 0 1 0 0
-    // 0 1 1 1 0
-    // 1 1 1 1 1
-    
-    // Exemplo para habilidade em octaedro:
-    // 0 0 1 0 0
-    // 0 1 1 1 0
-    // 0 0 1 0 0
-
-    // Exemplo para habilidade em cruz:
-    // 0 0 1 0 0
-    // 1 1 1 1 1
-    // 0 0 1 0 0
